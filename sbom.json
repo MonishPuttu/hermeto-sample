@@ -1,0 +1,28 @@
+{
+  "components": [
+    {
+      "name": "certifi",
+      "version": "2026.2.25"
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.4.4"
+    },
+    {
+      "name": "hermeto-mini",
+      "version": "0.1.0"
+    },
+    {
+      "name": "idna",
+      "version": "3.11"
+    },
+    {
+      "name": "requests",
+      "version": "2.32.5"
+    },
+    {
+      "name": "urllib3",
+      "version": "2.6.3"
+    }
+  ]
+}
