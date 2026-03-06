@@ -1,16 +1,14 @@
 import requests
-from pathlib import Path
 
-CACHE_DIR = Path("cache/wheels")
-CACHE_DIR.mkdir(parents=True, exist_ok=True)
+def download_artifact(url, output_dir):
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-def download(url):
     filename = url.split("/")[-1]
-    path = CACHE_DIR / filename
+    file_path = output_dir / filename
 
     r = requests.get(url)
 
-    with open(path, "wb") as f:
+    with open(file_path, "wb") as f:
         f.write(r.content)
 
-    return path
+    return file_path

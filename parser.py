@@ -1,7 +1,7 @@
 import tomllib
 
-def parse_lockfile(path):
-    with open(path, "rb") as f:
+def parse_lockfile(lockfile_path):
+    with open(lockfile_path, "rb") as f:
         data = tomllib.load(f)
 
     packages = []

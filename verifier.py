@@ -1,6 +1,6 @@
 import hashlib
 
-def verify(file_path, expected_hash):
+def verify_sha256(file_path, expected_hash):
     sha256 = hashlib.sha256()
 
     with open(file_path, "rb") as f:
