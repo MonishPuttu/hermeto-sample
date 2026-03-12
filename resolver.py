@@ -1,4 +1,7 @@
 def resolve_artifact(package):
-    if package["wheels"]:
-        return package["wheels"][0]
-    return package["sdist"]
+    wheels = package.get("wheels", [])
+
+    if wheels:
+        return wheels[0]
+
+    return package.get("sdist")

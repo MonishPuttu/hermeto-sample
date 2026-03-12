@@ -6,12 +6,20 @@ from resolver import resolve_artifact
 from fetcher import download_artifact
 from verifier import verify_sha256
 from sbom import generate_sbom
+from dep_graph import build_dependency_graph, remove_dev_dependencies
+from marker_eval import evaluate_marker
 
 
 def fetch_uv_dependencies(project_path, output_dir):
     lockfile = Path(project_path) / "uv.lock"
 
     packages = parse_lockfile(lockfile)
+
+    graph = build_dependency_graph(packages)
+
+    runtime_nodes = remove_dev_dependencies(graph, [])
+
+    packages = [p for p in packages if p["name"] in runtime_nodes or not runtime_nodes]
 
     deps_dir = Path(output_dir) / "deps" / "uv"
     deps_dir.mkdir(parents=True, exist_ok=True)

@@ -42,12 +42,14 @@ def parse_lockfile(path):
                     sdist = dist
 
         packages.append({
-            "name": name,
-            "version": version,
-            "wheels": wheels,
-            "sdist": sdist,
-            "marker": pkg.get("marker")
-        })
+        "name": name,
+        "version": version,
+        "wheels": wheels,
+        "sdist": sdist,
+        "marker": pkg.get("marker"),
+        "source": pkg.get("source"),
+        "dependencies": pkg.get("dependencies", [])
+    })
 
     return {
         "packages": packages,
