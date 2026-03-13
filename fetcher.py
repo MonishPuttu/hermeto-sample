@@ -1,14 +1,51 @@
-import requests
+import aiohttp
+import asyncio
 
-def download_artifact(url, output_dir):
-    output_dir.mkdir(parents=True, exist_ok=True)
 
+MAX_CONCURRENT_DOWNLOADS = 10
+RETRIES = 3
+
+
+async def async_download(session, url, output_dir, semaphore):
     filename = url.split("/")[-1]
-    file_path = output_dir / filename
+    path = output_dir / filename
 
-    r = requests.get(url)
+    async with semaphore:
 
-    with open(file_path, "wb") as f:
-        f.write(r.content)
+        for attempt in range(RETRIES):
 
-    return file_path
+            try:
+                async with session.get(url) as resp:
+
+                    if resp.status != 200:
+                        raise RuntimeError(f"Download failed {url} status={resp.status}")
+
+                    data = await resp.read()
+
+                with open(path, "wb") as f:
+                    f.write(data)
+
+                return path
+
+            except Exception:
+
+                if attempt == RETRIES - 1:
+                    raise
+
+                await asyncio.sleep(1)
+
+
+async def download_many(urls, output_dir):
+
+    semaphore = asyncio.Semaphore(MAX_CONCURRENT_DOWNLOADS)
+
+    timeout = aiohttp.ClientTimeout(total=60)
+
+    async with aiohttp.ClientSession(timeout=timeout) as session:
+
+        tasks = []
+
+        for url in urls:
+            tasks.append(async_download(session, url, output_dir, semaphore))
+
+        return await asyncio.gather(*tasks)
