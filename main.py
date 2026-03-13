@@ -15,7 +15,8 @@ from fetcher import download_many
 def fetch_uv_dependencies(project_path, output_dir):
     lockfile = Path(project_path) / "uv.lock"
 
-    packages = parse_lockfile(lockfile)
+    parsed = parse_lockfile(lockfile)
+    packages = parsed["packages"]
 
     graph = build_dependency_graph(packages)
 
