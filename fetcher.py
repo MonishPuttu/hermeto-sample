@@ -1,14 +1,19 @@
 import aiohttp
 import asyncio
+from pathlib import Path
 
 
 MAX_CONCURRENT_DOWNLOADS = 10
 RETRIES = 3
 
 
-async def async_download(session, url, output_dir, semaphore):
+async def async_download(session, url, package_name, version, output_root, semaphore):
     filename = url.split("/")[-1]
-    path = output_dir / filename
+
+    pkg_dir = Path(output_root) / package_name / version
+    pkg_dir.mkdir(parents=True, exist_ok=True)
+
+    path = pkg_dir / filename
 
     async with semaphore:
 
@@ -35,7 +40,7 @@ async def async_download(session, url, output_dir, semaphore):
                 await asyncio.sleep(1)
 
 
-async def download_many(urls, output_dir):
+async def download_many(jobs, output_root):
 
     semaphore = asyncio.Semaphore(MAX_CONCURRENT_DOWNLOADS)
 
@@ -45,7 +50,16 @@ async def download_many(urls, output_dir):
 
         tasks = []
 
-        for url in urls:
-            tasks.append(async_download(session, url, output_dir, semaphore))
+        for job in jobs:
+            tasks.append(
+                async_download(
+                    session,
+                    job["url"],
+                    job["name"],
+                    job["version"],
+                    output_root,
+                    semaphore
+                )
+            )
 
         return await asyncio.gather(*tasks)

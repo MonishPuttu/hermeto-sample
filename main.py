@@ -55,14 +55,20 @@ def fetch_uv_dependencies(project_path, output_dir):
         if not artifact:
             continue
 
-        download_jobs.append(artifact["url"])
+        job = {
+            "url": artifact["url"],
+            "name": pkg["name"],
+            "version": pkg["version"]
+        }
+
+        download_jobs.append(job)
         pkg_map[artifact["url"]] = pkg
 
     files = asyncio.run(download_many(download_jobs, deps_dir))
 
-    for file_path, url in zip(files, download_jobs):
+    for file_path, job in zip(files, download_jobs):
 
-        pkg = pkg_map[url]
+        pkg = pkg_map[job["url"]]
 
         artifact = resolve_artifact(pkg)
 
