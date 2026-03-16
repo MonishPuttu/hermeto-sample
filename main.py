@@ -6,7 +6,7 @@ from parser import parse_lockfile
 from resolver import resolve_artifact
 from verifier import verify_sha256
 from sbom import generate_sbom
-from dep_graph import build_dependency_graph
+from dep_graph import build_dependency_graph, remove_dev_dependencies
 from source_classifier import classify_source
 from git_fetcher import clone_as_tarball
 from fetcher import download_many
@@ -20,7 +20,14 @@ def fetch_uv_dependencies(project_path, output_dir):
 
     graph = build_dependency_graph(packages)
 
-    runtime_nodes = set(graph.keys())
+    dev_group = []
+
+    for pkg in packages:
+        dev_deps = pkg.get("dev-dependencies", {})
+        for group in dev_deps.values():
+            dev_group.extend(group)
+
+    runtime_nodes = remove_dev_dependencies(graph, dev_group)
 
     packages = [p for p in packages if p["name"] in runtime_nodes]
 
