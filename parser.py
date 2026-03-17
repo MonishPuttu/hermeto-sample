@@ -3,7 +3,8 @@ import tomllib
 
 def parse_lockfile(path):
     with open(path, "rb") as f:
-        data = tomllib.load(f)
+        raw_text = f.read()
+        data = tomllib.loads(raw_text.decode())
 
     packages = []
 
@@ -42,16 +43,17 @@ def parse_lockfile(path):
                     sdist = dist
 
         packages.append({
-        "name": name,
-        "version": version,
-        "wheels": wheels,
-        "sdist": sdist,
-        "marker": pkg.get("marker"),
-        "source": pkg.get("source"),
-        "dependencies": pkg.get("dependencies", [])
-    })
+            "name": name,
+            "version": version,
+            "wheels": wheels,
+            "sdist": sdist,
+            "marker": pkg.get("marker"),
+            "source": pkg.get("source"),
+            "dependencies": pkg.get("dependencies", [])
+        })
 
     return {
         "packages": packages,
-        "revision": lock_revision
+        "revision": lock_revision,
+        "raw": raw_text
     }
