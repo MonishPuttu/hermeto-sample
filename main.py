@@ -10,6 +10,7 @@ from dep_graph import build_dependency_graph, remove_dev_dependencies
 from source_classifier import classify_source
 from git_fetcher import clone_as_tarball
 from fetcher import download_many
+from lockfile_rewriter import rewrite_lockfile
 
 
 def fetch_uv_dependencies(project_path, output_dir):
@@ -76,8 +77,10 @@ def fetch_uv_dependencies(project_path, output_dir):
             raise RuntimeError(f"hash mismatch for {pkg['name']}")
 
     sbom_file = Path(output_dir) / "sbom.json"
-
     generate_sbom(packages, sbom_file)
+
+    rewritten_lockfile = Path(output_dir) / "uv.lock"
+    rewrite_lockfile(lockfile, rewritten_lockfile, deps_dir)
 
 
 if __name__ == "__main__":
