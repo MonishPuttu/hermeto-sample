@@ -3,7 +3,8 @@ from pathlib import Path
 
 
 def test_parse_lockfile():
-    lockfile = Path("sample-uv/uv.lock")
+    root = Path(__file__).resolve().parent.parent.parent
+    lockfile = root / "sample-uv" / "uv.lock"
 
     result = parse_lockfile(lockfile)
 
