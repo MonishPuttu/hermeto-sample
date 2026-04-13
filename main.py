@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 import asyncio
+import sys as _sys
 
 from parser import parse_lockfile
 from resolver import resolve_artifact
@@ -13,10 +14,27 @@ from fetcher import download_many
 from lockfile_rewriter import rewrite_lockfile
 
 
+def validate_python_requirement(requires_python):
+    if not requires_python:
+        return
+
+    current = f"{_sys.version_info.major}.{_sys.version_info.minor}"
+
+    if requires_python.startswith(">="):
+        required = requires_python.replace(">=", "").strip()
+        if current < required:
+            raise RuntimeError(
+                f"Python {current} does not satisfy requires-python {requires_python}"
+            )
+
+
 def fetch_uv_dependencies(project_path, output_dir):
     lockfile = Path(project_path) / "uv.lock"
 
     parsed = parse_lockfile(lockfile)
+
+    validate_python_requirement(parsed.get("requires_python"))
+
     packages = parsed["packages"]
 
     graph = build_dependency_graph(packages)
